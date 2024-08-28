@@ -1,0 +1,256 @@
+
+--GRUPO 3--
+--NOME: JOÃO V. CASADINHO, MARCOS MEDEIROS, MATHEUS GOUVEA, DAIANE FERREIRA, DENÍLSON JOSÉ.
+
+
+-- Criação da tabela de Produtos
+
+CREATE TABLE Produto (
+    id_produto SERIAL PRIMARY KEY,                    				 -- Identificador único do produto
+    nome VARCHAR(40) NOT NULL,                       				 -- Nome do produto
+    descricao_produto VARCHAR(250) NOT NULL,         				 -- Descrição do produto
+    quantidade_produto INTEGER NOT NULL,               				 -- Quantidade disponível do produto
+    data_fabricacao DATE NOT NULL,                                               -- Data de fabricação do produto
+    valor_produto REAL NOT NULL                       			         -- Valor do produto
+);
+
+-- Criação da tabela de Funcionários
+
+CREATE TABLE Funcionario (
+    id_funcionario SERIAL PRIMARY KEY,                                           -- Identificador único do funcionário
+    cpf VARCHAR(50) NOT NULL,                                                    -- CPF do funcionário
+    nome_funcionario VARCHAR(50) NOT NULL                                        -- Nome do funcionário
+);
+
+-- Criação da tabela de Gerência (associativa entre Funcionário e Produto)
+
+CREATE TABLE Gerencia (
+    id_funcionario INTEGER NOT NULL,                                            -- Identificador do funcionário
+    id_produto INTEGER NOT NULL,                                                -- Identificador do produto
+    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id_funcionario),        -- Chave estrangeira referenciando a tabela Funcionário
+    FOREIGN KEY (id_produto) REFERENCES Produto(id_produto) ON DELETE CASCADE   -- Chave estrangeira referenciando a tabela Produto
+);
+
+-- Criação da tabela de Categorias
+
+CREATE TABLE Categoria (
+    id_categoria SERIAL PRIMARY KEY,                                            -- Identificador único da categoria
+    nome_categoria VARCHAR(50) NOT NULL,                                        -- Nome da categoria
+    descricao_categoria VARCHAR(50) NOT NULL,                                   -- Descrição da categoria
+    id_produto INTEGER NOT NULL,                                                -- Identificador do produto associado
+    FOREIGN KEY (id_produto) REFERENCES Produto(id_produto)			-- Chave estrangeira referenciando a tabela Produto 
+ ON DELETE CASCADE ON UPDATE RESTRICT                                           
+);
+
+-- Criação da tabela de Clientes
+CREATE TABLE Cliente (
+    id_cliente SERIAL PRIMARY KEY,                      			-- Identificador único do cliente
+    nome_cliente VARCHAR(50) NOT NULL,                  			-- Nome do cliente
+    usuario VARCHAR(50) NOT NULL,                       			-- Nome de usuário do cliente
+    email VARCHAR(50) NOT NULL,                         			-- E-mail do cliente
+    senha VARCHAR(50) NOT NULL,                         			-- Senha do cliente
+    cpf VARCHAR(50) NOT NULL,                           			-- CPF do cliente
+    data_nascimento DATE NOT NULL,                      			-- Data de nascimento do cliente
+    endereco VARCHAR(50) NOT NULL,                      			-- Endereço do cliente
+    bairro VARCHAR(50) NOT NULL,                       				-- Bairro do cliente
+    cidade VARCHAR(50) NOT NULL,                        			-- Cidade do cliente
+    uf VARCHAR(50) NOT NULL                            				-- Unidade Federativa (Estado) do cliente
+);
+
+-- Criação da tabela de Pedidos
+
+CREATE TABLE Pedido (
+    pedido SERIAL PRIMARY KEY,                         				-- Identificador único do pedido
+    data_pedido DATE NOT NULL,                         				-- Data do pedido
+    id_cliente INTEGER NOT NULL,                        			-- Identificador do cliente
+    id_produto INTEGER NOT NULL,                        			-- Identificador do produto
+ 
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente) 			-- Chave estrangeira referenciando a tabela Cliente
+ON DELETE CASCADE ON UPDATE RESTRICT  
+);
+INSERT INTO Gerencia (id_funcionario, id_produto) 
+VALUES 
+(1, 1),  -- Ana Silva gerencia o Teclado Mecânico
+(2, 2),  -- Carlos Oliveira gerencia o Mouse Gamer
+(3, 3),  -- Fernanda Souza gerencia o Monitor 24"
+(4, 4),  -- Mariana Costa gerencia o Headset Gamer
+(5, 5);  -- Ricardo Pereira gerencia a Cadeira Ergonômica
+
+-- Adiciona coluna id_pedido na tabela Cliente
+
+ALTER TABLE Cliente
+ADD COLUMN id_pedido INTEGER;
+
+-- Adiciona uma restrição de chave estrangeira para a tabela Cliente
+
+ALTER TABLE Cliente
+ADD CONSTRAINT fk_cliente_pedido
+FOREIGN KEY (id_pedido) REFERENCES Pedido(pedido)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+
+CREATE TABLE Carrinho (
+    id_carrinho SERIAL PRIMARY KEY,                    -- Identificador único do item no carrinho
+    id_pedido INTEGER NOT NULL,                        -- Identificador do pedido associado
+    id_produto INTEGER NOT NULL,                       -- Identificador do produto no carrinho
+    quantidade INTEGER NOT NULL DEFAULT 1,             -- Quantidade do produto no carrinho
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(pedido) ON DELETE CASCADE ON UPDATE RESTRICT,  -- Chave estrangeira referenciando a tabela Pedido
+    FOREIGN KEY (id_produto) REFERENCES Produto(id_produto) ON DELETE CASCADE ON UPDATE RESTRICT   -- Chave estrangeira referenciando a tabela Produto
+);
+
+
+--INSERÇÃO DE DADOS
+
+-- Inserção de dados na tabela Produto
+
+INSERT INTO Produto (nome, descricao_produto, quantidade_produto, data_fabricacao, valor_produto) 
+VALUES 
+('Teclado Mecânico', 'Teclado mecânico RGB com switches Cherry MX', 50, '2024-01-15', 299.99),
+('Mouse Gamer', 'Mouse com DPI ajustável e iluminação LED', 100, '2024-02-20', 149.99),
+('Monitor 24"', 'Monitor Full HD 24 polegadas com painel IPS', 30, '2024-03-10', 499.99),
+('Headset Gamer', 'Headset com som surround e microfone ajustável', 20, '2024-04-05', 199.99),
+('Cadeira Ergonômica', 'Cadeira ergonômica com apoio para os braços', 15, '2024-05-25', 899.99);
+
+-- Inserção de dados na tabela Funcionario
+
+INSERT INTO Funcionario (cpf, nome_funcionario) 
+VALUES 
+('123.456.789-00', 'Ana Silva'),
+('987.654.321-00', 'Carlos Oliveira'),
+('456.789.123-00', 'Fernanda Souza'),
+('112.233.445-66', 'Mariana Costa'),
+('223.344.556-77', 'Ricardo Pereira');
+
+-- Inserção de dados na tabela Categoria
+
+INSERT INTO Categoria (nome_categoria, descricao_categoria, id_produto) 
+VALUES 
+('Periféricos', 'Dispositivos de entrada e saída', 1),
+('Periféricos', 'Dispositivos de entrada e saída', 2),
+('Monitores', 'Dispositivos de exibição', 3),
+('Áudio', 'Equipamentos de áudio para jogos', 4),
+('Mobiliário', 'Mobiliário para escritório e jogos', 5);
+
+-- Inserção de dados na tabela Cliente
+
+INSERT INTO Cliente (nome_cliente, usuario, email, senha, cpf, data_nascimento, endereco, bairro, cidade, uf) 
+VALUES 
+('João Pedro Silva', 'joaopedro', 'joao.pedro@email.com', 'senha123', '321.654.987-00', '1990-05-15', 'Rua A, 123', 'Centro', 'São Paulo', 'SP'),
+('Maria Oliveira Santos', 'mariaoliveira', 'maria.oliveira@email.com', 'senha456', '654.987.321-00', '1985-11-22', 'Avenida B, 456', 'Jardim', 'Rio de Janeiro', 'RJ'),
+('Lucas Martins Pereira', 'lucasmartins', 'lucas.martins@email.com', 'senha789', '987.321.654-00', '2000-07-10', 'Travessa C, 789', 'Vila Nova', 'Belo Horizonte', 'MG'),
+('Fernanda Costa', 'fernandacosta', 'fernanda.costa@email.com', 'senha101', '111.222.333-44', '1992-09-30', 'Rua D, 101', 'Boa Vista', 'Curitiba', 'PR'),
+('Roberto Almeida', 'robertoalmeida', 'roberto.almeida@email.com', 'senha202', '555.666.777-88', '1988-12-12', 'Avenida E, 202', 'São Francisco', 'Porto Alegre', 'RS');
+
+-- Inserção de dados na tabela Pedido
+
+INSERT INTO Pedido (data_pedido, id_cliente, id_produto) 
+VALUES 
+('2024-08-01', 1, 1),
+('2024-08-05', 2, 2),
+('2024-08-10', 3, 3),
+('2024-08-15', 4, 4),
+('2024-08-20', 5, 5);
+
+INSERT INTO Carrinho (id_pedido, id_produto, quantidade) 
+VALUES 
+(1, 1, 2),
+(2, 2, 1),
+(3, 3, 1),
+(4, 4, 1),
+(5, 5, 2);
+
+
+--QUERIES
+
+-- Exclui o produto com id_produto = 5
+    DELETE FROM Produto
+    WHERE id_produto = 5;
+
+-- Atualiza o valor do produto com id_produto = 3
+    UPDATE Produto
+    SET valor_produto = 450.00
+    WHERE id_produto = 3;
+
+-- Consulta 1 com junção: Produtos com seus gerentes e categorias
+
+SELECT
+    pr.nome AS "Nome do Produto",
+    pr.descricao_produto AS "Descrição do Produto",
+    f.nome_funcionario AS "Nome do Funcionário",
+    c.nome_categoria AS "Nome da Categoria",
+    c.descricao_categoria AS "Descrição da Categoria"
+FROM 
+    Produto pr
+    JOIN Gerencia g ON pr.id_produto = g.id_produto
+    JOIN Funcionario f ON g.id_funcionario = f.id_funcionario
+    JOIN Categoria c ON pr.id_produto = c.id_produto
+ORDER BY
+    pr.nome, c.nome_categoria;
+
+
+
+--Consulta 2: usando count() e group by()
+
+SELECT 
+    c.nome_categoria,
+    COUNT(pr.id_produto) AS quantidade_produtos
+FROM 
+    Categoria c
+JOIN 
+    Produto pr ON c.id_produto = pr.id_produto
+GROUP BY 
+    c.nome_categoria;
+
+
+
+--Consulta 3: livre.
+
+SELECT 
+    c.nome_cliente,
+    p.pedido,
+    p.data_pedido
+FROM 
+    Cliente c
+LEFT JOIN 
+    Pedido p ON c.id_cliente = p.id_cliente;
+
+
+
+-- Consulta 4: para gerar a nota fiscal
+
+SELECT
+    p.pedido AS "Número do Pedido",
+    c.nome_cliente AS "Nome do Cliente",
+    c.email AS "E-mail do Cliente",
+    pr.nome AS "Nome do Produto",
+    pr.descricao_produto AS "Descrição do Produto",
+    cr.quantidade AS "Quantidade",
+    pr.valor_produto AS "Valor Unitário",
+    (cr.quantidade * pr.valor_produto) AS "Total do Produto"
+FROM 
+    Pedido p
+    JOIN Cliente c ON p.id_cliente = c.id_cliente
+    JOIN Carrinho cr ON p.pedido = cr.id_pedido
+    JOIN Produto pr ON cr.id_produto = pr.id_produto
+ORDER BY
+    p.pedido, pr.nome;
+
+
+-- Nova Consulta 5 com junção: Resumo dos pedidos e quantidade em estoque dos produtos
+SELECT
+    p.pedido AS "Número do Pedido",
+    c.nome_cliente AS "Nome do Cliente",
+    p.data_pedido AS "Data do Pedido",
+    pr.nome AS "Nome do Produto",
+    pr.quantidade_produto AS "Quantidade em Estoque",
+    cr.quantidade AS "Quantidade Pedida",
+    (pr.quantidade_produto - cr.quantidade) AS "Quantidade Restante em Estoque"
+FROM 
+    Pedido p
+    JOIN Cliente c ON p.id_cliente = c.id_cliente
+    JOIN Carrinho cr ON p.pedido = cr.id_pedido
+    JOIN Produto pr ON cr.id_produto = pr.id_produto
+ORDER BY
+    p.pedido, pr.nome;
+
